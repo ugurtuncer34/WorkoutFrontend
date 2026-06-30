@@ -12,7 +12,9 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.3.2",
     "axios": "^1.18.1",
+    "framer-motion": "^12.42.1",
     "react": "^19.2.7",
+    "react-activity-calendar": "^3.2.0",
     "react-dom": "^19.2.7",
     "react-router-dom": "^7.18.1"
   },
