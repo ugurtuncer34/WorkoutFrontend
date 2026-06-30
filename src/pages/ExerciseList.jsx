@@ -4,7 +4,7 @@ import { api } from '../api/axiosInstance';
 import IconCard from '../components/IconCard';
 
 const ExerciseList = () => {
-    const { targetMuscleId } = useParams();
+    const { muscleGroupId } = useParams();
     const [exercises, setExercises] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const navigate = useNavigate();
@@ -12,7 +12,7 @@ const ExerciseList = () => {
     useEffect(() => {
         const fetchExercises = async () => {
             try {
-                const response = await api.get(`/catalog/target-muscles/${targetMuscleId}/exercises`);
+                const response = await api.get(`/catalog/muscle-groups/${muscleGroupId}/exercises`);
                 setExercises(response.data);
             } catch (error) {
                 console.error('Failed to fetch exercises', error);
@@ -22,15 +22,25 @@ const ExerciseList = () => {
         };
 
         fetchExercises();
-    }, [targetMuscleId]);
+    }, [muscleGroupId]);
 
     const handleExerciseClick = (exerciseId) => {
         navigate(`/logger/${exerciseId}`);
     };
 
     const handleBack = () => {
-        navigate(-1);
+        navigate('/catalog');
     };
+
+    // Group exercises visually by their Target Muscle Name
+    const groupedExercises = exercises.reduce((acc, ex) => {
+        const target = ex.targetMuscleName || 'Other';
+        if (!acc[target]) {
+            acc[target] = [];
+        }
+        acc[target].push(ex);
+        return acc;
+    }, {});
 
     if (isLoading) {
         return (
@@ -55,17 +65,26 @@ const ExerciseList = () => {
 
                 {exercises.length === 0 ? (
                     <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-center transition-colors">
-                        <p className="text-gray-500 dark:text-gray-400">No exercises found for this muscle.</p>
+                        <p className="text-gray-500 dark:text-gray-400">No exercises found for this muscle group.</p>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 gap-4 content-start">
-                        {exercises.map((exercise) => (
-                            <IconCard
-                                key={exercise.id}
-                                name={exercise.name}
-                                iconKey={exercise.iconKey}
-                                onClick={() => handleExerciseClick(exercise.id)}
-                            />
+                    <div className="space-y-8">
+                        {Object.entries(groupedExercises).map(([targetName, targetExercises]) => (
+                            <div key={targetName} className="space-y-4">
+                                <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider px-1">
+                                    {targetName}
+                                </h3>
+                                <div className="grid grid-cols-2 gap-4 content-start">
+                                    {targetExercises.map((exercise) => (
+                                        <IconCard
+                                            key={exercise.id}
+                                            name={exercise.name}
+                                            iconKey={exercise.iconKey}
+                                            onClick={() => handleExerciseClick(exercise.id)}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
                         ))}
                     </div>
                 )}

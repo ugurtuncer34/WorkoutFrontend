@@ -14,7 +14,7 @@ const Logger = () => {
     const sessionId = localStorage.getItem('activeSessionId');
 
     const repOptions = [5, 6, 8, 10, 12, 15, 20];
-    const weightOptions = [2.5, 5, 7.5, 10, 12.5, 15, 17.5, 20, 25, 30, 40, 50];
+    const weightOptions = [5, 8, 10, 16, 20];
 
     useEffect(() => {
         if (!sessionId) {

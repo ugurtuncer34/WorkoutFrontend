@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Instructs Tailwind v4 to trigger dark mode when the .dark class is present */
+@variant dark (&:where(.dark, .dark *));
+
 * {
   -webkit-tap-highlight-color: transparent;
 }
