@@ -6,3 +6,16 @@
 * {
   -webkit-tap-highlight-color: transparent;
 }
+
+:root {
+  --safe-area-inset-top: env(safe-area-inset-top);
+}
+
+body {
+  background-color: #f9fafb; 
+  padding-top: var(--safe-area-inset-top);
+}
+
+html.dark body {
+  background-color: #111827;
+}

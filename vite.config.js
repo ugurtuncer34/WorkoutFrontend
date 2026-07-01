@@ -16,10 +16,10 @@ export default defineConfig({
       },
       manifest: {
         name: 'Workout Tracker',
-        short_name: 'Workout',
+        short_name: 'Muscle',
         description: 'Track your daily workouts with zero friction.',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
+        theme_color: '#111827',
+        background_color: '#111827',
         display: 'standalone',
         start_url: '/',
         id: '/',
