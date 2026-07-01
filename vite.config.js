@@ -10,6 +10,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
       manifest: {
         name: 'Workout Tracker',
         short_name: 'Workout',
@@ -17,6 +21,8 @@ export default defineConfig({
         theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
+        start_url: '/',
+        id: '/',
         icons: [
           {
             src: 'pwa-192x192.png',

@@ -58,7 +58,9 @@ const WorkoutHeatmap = ({ history }) => {
 
     return (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 mb-6 flex flex-col items-center transition-colors">
-            <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200 mb-4 self-start px-1">Activity Map</h4>
+            <h4 className="text-sm font-black text-gray-600 dark:text-gray-200 mb-4 self-start px-1 uppercase tracking-[0.15em]">
+                Activity Map
+            </h4>
 
             {/* Text color dynamically inherits from this wrapper */}
             <div className="w-full flex justify-center text-gray-800 dark:text-gray-300">

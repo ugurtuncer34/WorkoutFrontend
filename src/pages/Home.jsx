@@ -72,17 +72,21 @@ const Home = () => {
 
     return (
         // dark:bg-gray-900 added to root
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center p-4 transition-colors">
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col items-center p-4 transition-colors">
 
             {/* dark:bg-gray-800 added to header card */}
             <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-3xl shadow-sm p-8 text-center mt-6 mb-8 transition-colors">
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Workout Tracker</h1>
-                <p className="text-gray-500 dark:text-gray-400 mb-8">Zero Friction Environment</p>
+                <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 mb-2 tracking-tight">
+                    Workout Tracker
+                </h1>
+                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-8 tracking-[0.2em] uppercase opacity-80">
+                    Zero Friction Environment
+                </p>
 
                 {activeSessionId ? (
                     <button
                         onClick={() => navigate('/catalog')}
-                        className="w-full bg-orange-500 text-white font-bold py-4 rounded-xl active:bg-orange-600 transition-colors"
+                        className="w-full bg-orange-100/50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border-2 border-orange-400/50 dark:border-orange-500/50 font-bold py-4 rounded-xl active:bg-orange-200 dark:active:bg-orange-900/60 transition-all shadow-[0_0_15px_rgba(249,115,22,0.15)]"
                     >
                         Resume Active Session
                     </button>
@@ -90,7 +94,7 @@ const Home = () => {
                     <button
                         onClick={handleStartSession}
                         disabled={isStarting}
-                        className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl active:bg-blue-700 transition-colors disabled:opacity-50"
+                        className="w-full bg-blue-100/50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-2 border-blue-400/50 dark:border-blue-500/50 font-bold py-4 rounded-xl active:bg-blue-200 dark:active:bg-blue-900/60 transition-all shadow-[0_0_15px_rgba(37,99,235,0.15)] disabled:opacity-50"
                     >
                         {isStarting ? 'Starting...' : 'Start Session'}
                     </button>
@@ -103,7 +107,9 @@ const Home = () => {
                     <WorkoutHeatmap history={history} />
                 )}
 
-                <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-4 px-2">Recent Workouts</h3>
+                <h3 className="text-sm font-black text-gray-600 dark:text-gray-200 mb-4 px-2 uppercase tracking-[0.15em]">
+                    Recent Workouts
+                </h3>
 
                 {isLoadingHistory ? (
                     <div className="text-center py-10">
@@ -123,7 +129,7 @@ const Home = () => {
                                 className="w-full bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-left active:scale-95 transition-all flex items-center justify-between"
                             >
                                 <div>
-                                    <p className="font-bold text-gray-800 dark:text-gray-100 mb-1">{formatDate(session.date)}</p>
+                                    <p className="font-bold text-gray-600 dark:text-gray-200 mb-1">{formatDate(session.date)}</p>
 
                                     <div className="flex items-center gap-2 mt-2">
                                         {getUniqueMuscleGroups(session.exercises).map((mg, idx) => (
@@ -133,7 +139,7 @@ const Home = () => {
                                                     <img
                                                         src={`/assets/icons/${mg.iconKey}.svg`}
                                                         alt={mg.name}
-                                                        className="w-6 h-6 object-contain opacity-70 dark:invert"
+                                                        className="w-8 h-8 object-contain opacity-70 dark:invert"
                                                         onError={(e) => {
                                                             e.target.style.display = 'none';
                                                             e.target.nextSibling.style.display = 'block';
