@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import Home from './pages/Home';
@@ -7,6 +7,7 @@ import Catalog from './pages/Catalog';
 import ExerciseList from './pages/ExerciseList';
 import Logger from './pages/Logger';
 import Summary from './pages/Summary';
+import Login from './pages/Login';
 import ThemeToggle from './components/ThemeToggle';
 
 const PageTransition = ({ children }) => {
@@ -23,6 +24,14 @@ const PageTransition = ({ children }) => {
   );
 };
 
+const ProtectedRoute = ({ children }) => {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
 const AnimatedRoutes = () => {
   const location = useLocation();
 
@@ -31,10 +40,16 @@ const AnimatedRoutes = () => {
       <ThemeToggle />
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
-          <Route path="/" element={<PageTransition><Home /></PageTransition>} />
-          <Route path="/catalog" element={<PageTransition><Catalog /></PageTransition>} />
-          <Route path="/exercises/:muscleGroupId" element={<PageTransition><ExerciseList /></PageTransition>} />          <Route path="/logger/:exerciseId" element={<PageTransition><Logger /></PageTransition>} />
-          <Route path="/summary/:sessionId" element={<PageTransition><Summary /></PageTransition>} />
+          
+          <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+
+          {/* PROTECTED */}
+          <Route path="/" element={<ProtectedRoute><PageTransition><Home /></PageTransition></ProtectedRoute>} />
+          <Route path="/catalog" element={<ProtectedRoute><PageTransition><Catalog /></PageTransition></ProtectedRoute>} />
+          <Route path="/exercises/:muscleGroupId" element={<ProtectedRoute><PageTransition><ExerciseList /></PageTransition></ProtectedRoute>} />
+          <Route path="/logger/:exerciseId" element={<ProtectedRoute><PageTransition><Logger /></PageTransition></ProtectedRoute>} />
+          <Route path="/summary/:sessionId" element={<ProtectedRoute><PageTransition><Summary /></PageTransition></ProtectedRoute>} />
+          
         </Routes>
       </AnimatePresence>
     </>

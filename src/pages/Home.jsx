@@ -40,6 +40,27 @@ const Home = () => {
         }
     };
 
+    // SESSION SİLME FONKSİYONU
+    const handleDeleteSession = async (sessionId) => {
+        const isConfirmed = window.confirm("Are you sure you want to permanently delete this workout session? This action cannot be undone.");
+        if (!isConfirmed) return;
+
+        try {
+            await api.delete(`/workout/sessions/${sessionId}`);
+            // Silinen seansı anında State'den çıkar
+            setHistory(prev => prev.filter(session => session.id !== sessionId));
+        } catch (error) {
+            console.error('Failed to delete session', error);
+            alert('Failed to delete workout session.');
+        }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('activeSessionId');
+        navigate('/login');
+    };
+
     const formatDate = (dateString) => new Date(dateString).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
     const getUniqueMuscleGroups = (exercises) => {
@@ -57,8 +78,17 @@ const Home = () => {
 
             {/* Fixed Top Section: Header & Heatmap */}
             <div className="flex-none p-4 pb-0 max-w-md w-full mx-auto">
-                <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm p-8 text-center mt-6 mb-4">
-                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 mb-2 tracking-tight">
+                <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm p-8 text-center mt-6 mb-4 relative">
+
+                    {/* Logout Butonu */}
+                    <button
+                        onClick={handleLogout}
+                        className="absolute top-4 left-5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 text-[10px] font-black uppercase tracking-[0.2em] transition-colors"
+                    >
+                        Logout
+                    </button>
+
+                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 mb-2 tracking-tight mt-2">
                         Workout Tracker
                     </h1>
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-8 tracking-[0.2em] uppercase opacity-80">
@@ -90,18 +120,20 @@ const Home = () => {
                 </h3>
 
                 {isLoadingHistory ? (
-                    <div className="text-center py-10"><p className="text-gray-400 animate-pulse">Loading history...</p></div>
+                    <div className="text-center py-10"><p className="text-gray-400 animate-pulse font-medium">Loading history...</p></div>
                 ) : history.length === 0 ? (
-                    <div className="bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-200 p-8 text-center"><p className="text-gray-400">No workouts yet.</p></div>
+                    <div className="bg-white dark:bg-gray-800 rounded-3xl border border-dashed border-gray-200 dark:border-gray-700 p-8 text-center transition-colors">
+                        <p className="text-gray-400">No workouts yet.</p>
+                    </div>
                 ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-3">
                         {history.map((session) => (
-                            <button
+                            <div
                                 key={session.id}
-                                onClick={() => navigate(`/summary/${session.id}`)}
-                                className="w-full bg-white dark:bg-gray-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-left transition-all active:scale-95 flex items-center justify-between"
+                                className="w-full bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors flex items-center justify-between"
                             >
-                                <div>
+                                {/* Sol kısım tıklandığında summary'ye atar */}
+                                <div onClick={() => navigate(`/summary/${session.id}`)} className="flex-1 cursor-pointer active:opacity-60 transition-opacity">
                                     <p className="font-bold text-gray-600 dark:text-gray-200 mb-1">{formatDate(session.date)}</p>
                                     <div className="flex items-center gap-2 mt-2">
                                         {getUniqueMuscleGroups(session.exercises).map((mg, idx) => (
@@ -109,11 +141,21 @@ const Home = () => {
                                         ))}
                                     </div>
                                 </div>
-                                <div className="text-right">
-                                    <p className="text-xs font-bold text-gray-400 uppercase">Volume</p>
-                                    <p className="font-black text-blue-600 dark:text-blue-400">{session.totalVolumeKg} <span className="text-xs font-medium">kg</span></p>
+
+                                {/* Sağ kısım: Volume ve Silme butonu yanyana */}
+                                <div className="flex items-center gap-4">
+                                    <div onClick={() => navigate(`/summary/${session.id}`)} className="text-right cursor-pointer active:opacity-60 transition-opacity">
+                                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Volume</p>
+                                        <p className="font-black text-blue-600 dark:text-blue-400">{session.totalVolumeKg} <span className="text-xs font-medium">kg</span></p>
+                                    </div>
+                                    <button
+                                        onClick={() => handleDeleteSession(session.id)}
+                                        className="w-10 h-10 flex-none flex items-center justify-center rounded-xl bg-red-50/50 dark:bg-red-950/30 text-red-500/70 dark:text-red-400/70 hover:bg-red-100 active:bg-red-200 transition-colors font-bold border border-red-100 dark:border-red-900/30"
+                                    >
+                                        ✕
+                                    </button>
                                 </div>
-                            </button>
+                            </div>
                         ))}
                     </div>
                 )}
