@@ -40,14 +40,12 @@ const Home = () => {
         }
     };
 
-    // SESSION SİLME FONKSİYONU
     const handleDeleteSession = async (sessionId) => {
         const isConfirmed = window.confirm("Are you sure you want to permanently delete this workout session? This action cannot be undone.");
         if (!isConfirmed) return;
 
         try {
             await api.delete(`/workout/sessions/${sessionId}`);
-            // Silinen seansı anında State'den çıkar
             setHistory(prev => prev.filter(session => session.id !== sessionId));
         } catch (error) {
             console.error('Failed to delete session', error);
@@ -76,19 +74,27 @@ const Home = () => {
     return (
         <div className="h-screen bg-gray-50 dark:bg-gray-900 flex flex-col overflow-hidden transition-colors">
 
-            {/* Fixed Top Section: Header & Heatmap */}
+            {/* Fixed Top Section */}
             <div className="flex-none p-4 pb-0 max-w-md w-full mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm p-8 text-center mt-6 mb-4 relative">
-
-                    {/* Logout Butonu */}
-                    <button
-                        onClick={handleLogout}
-                        className="absolute top-4 left-5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 text-[10px] font-black uppercase tracking-[0.2em] transition-colors"
+                    
+                    {/* Logout Butonu (Sol Üst) */}
+                    <button 
+                        onClick={handleLogout} 
+                        className="absolute top-5 left-5 text-gray-400 hover:text-red-500 dark:hover:text-red-400 text-[10px] font-black uppercase tracking-[0.2em] transition-colors"
                     >
                         Logout
                     </button>
 
-                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 mb-2 tracking-tight mt-2">
+                    {/* Manage Catalog Butonu (Sağ Üst) */}
+                    <button 
+                        onClick={() => navigate('/manage-catalog')} 
+                        className="absolute top-5 right-5 text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 text-[10px] font-black uppercase tracking-[0.2em] transition-colors"
+                    >
+                        Catalog +
+                    </button>
+
+                    <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400 mb-2 tracking-tight mt-4">
                         Workout Tracker
                     </h1>
                     <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-8 tracking-[0.2em] uppercase opacity-80">
@@ -132,7 +138,6 @@ const Home = () => {
                                 key={session.id}
                                 className="w-full bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors flex items-center justify-between"
                             >
-                                {/* Sol kısım tıklandığında summary'ye atar */}
                                 <div onClick={() => navigate(`/summary/${session.id}`)} className="flex-1 cursor-pointer active:opacity-60 transition-opacity">
                                     <p className="font-bold text-gray-600 dark:text-gray-200 mb-1">{formatDate(session.date)}</p>
                                     <div className="flex items-center gap-2 mt-2">
@@ -141,8 +146,7 @@ const Home = () => {
                                         ))}
                                     </div>
                                 </div>
-
-                                {/* Sağ kısım: Volume ve Silme butonu yanyana */}
+                                
                                 <div className="flex items-center gap-4">
                                     <div onClick={() => navigate(`/summary/${session.id}`)} className="text-right cursor-pointer active:opacity-60 transition-opacity">
                                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Volume</p>

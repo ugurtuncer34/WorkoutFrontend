@@ -9,6 +9,7 @@ import Logger from './pages/Logger';
 import Summary from './pages/Summary';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ManageCatalog from './pages/ManageCatalog';
 import ThemeToggle from './components/ThemeToggle';
 
 const PageTransition = ({ children }) => {
@@ -43,14 +44,15 @@ const AnimatedRoutes = () => {
         <Routes location={location} key={location.pathname}>
           
           <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
-          <Route path="/register" element={<PageTransition><Register /></PageTransition>} /> {/* YENİ EKLENDİ */}
+          <Route path="/register" element={<PageTransition><Register /></PageTransition>} />
 
-          {/* PROTECTED */}
+          {/* PROTECTED ROUTES */}
           <Route path="/" element={<ProtectedRoute><PageTransition><Home /></PageTransition></ProtectedRoute>} />
           <Route path="/catalog" element={<ProtectedRoute><PageTransition><Catalog /></PageTransition></ProtectedRoute>} />
           <Route path="/exercises/:muscleGroupId" element={<ProtectedRoute><PageTransition><ExerciseList /></PageTransition></ProtectedRoute>} />
           <Route path="/logger/:exerciseId" element={<ProtectedRoute><PageTransition><Logger /></PageTransition></ProtectedRoute>} />
           <Route path="/summary/:sessionId" element={<ProtectedRoute><PageTransition><Summary /></PageTransition></ProtectedRoute>} />
+          <Route path="/manage-catalog" element={<ProtectedRoute><PageTransition><ManageCatalog /></PageTransition></ProtectedRoute>} /> {/* YENİ EKLENDİ */}
           
         </Routes>
       </AnimatePresence>
