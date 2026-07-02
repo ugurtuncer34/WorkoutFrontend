@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../api/axiosInstance';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Login = () => {
+const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +16,7 @@ const Login = () => {
         }
     }, [navigate]);
 
-    const handleLogin = async (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
         if (!username || !password) return;
 
@@ -24,15 +24,23 @@ const Login = () => {
         setErrorMessage('');
 
         try {
-            const response = await api.post('/auth/login', { username, password });
+            const response = await api.post('/auth/register', { username, password });
             const token = response.data.data.token;
 
             localStorage.setItem('token', token);
             navigate('/');
         } catch (error) {
-            console.error('Login failed', error);
-            const backendMsg = error.response?.data?.message || error.response?.data;
-            setErrorMessage(typeof backendMsg === 'string' ? backendMsg : 'Login failed. Please check your credentials.');
+            console.error('Registration failed', error);
+
+            const backendMsg = error.response?.data?.message || error.response?.data || '';
+
+            if (typeof backendMsg === 'string' && backendMsg.toLowerCase().includes('disabled')) {
+                setErrorMessage('New registrations are closed.');
+            } else if (typeof backendMsg === 'string') {
+                setErrorMessage(backendMsg);
+            } else {
+                setErrorMessage('Registration failed. Please try again.');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -50,7 +58,7 @@ const Login = () => {
                         Workout Tracker
                     </h1>
                     <p className="text-xs font-black text-gray-400 dark:text-gray-500 uppercase tracking-[0.2em]">
-                        Authentication
+                        Create Account
                     </p>
                 </div>
 
@@ -67,7 +75,7 @@ const Login = () => {
                     )}
                 </AnimatePresence>
 
-                <form onSubmit={handleLogin} className="space-y-4">
+                <form onSubmit={handleRegister} className="space-y-4">
                     <div>
                         <input
                             type="text"
@@ -92,15 +100,15 @@ const Login = () => {
                         disabled={isLoading}
                         className="w-full bg-blue-600 dark:bg-blue-600 text-white font-bold py-4 rounded-xl outline-none transition-all active:bg-blue-700 dark:active:bg-blue-700 mt-4 shadow-lg shadow-blue-500/20 disabled:opacity-50"
                     >
-                        {isLoading ? 'Authenticating...' : 'Sign In'}
+                        {isLoading ? 'Creating Account...' : 'Sign Up'}
                     </button>
                 </form>
 
                 <div className="mt-8 text-center">
                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Don't have an account?{' '}
-                        <Link to="/register" className="text-blue-600 dark:text-blue-400 font-bold hover:underline transition-all">
-                            Register here
+                        Already have an account?{' '}
+                        <Link to="/login" className="text-blue-600 dark:text-blue-400 font-bold hover:underline transition-all">
+                            Sign in here
                         </Link>
                     </p>
                 </div>
@@ -109,4 +117,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default Register;

@@ -8,6 +8,7 @@ import ExerciseList from './pages/ExerciseList';
 import Logger from './pages/Logger';
 import Summary from './pages/Summary';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import ThemeToggle from './components/ThemeToggle';
 
 const PageTransition = ({ children }) => {
@@ -42,6 +43,7 @@ const AnimatedRoutes = () => {
         <Routes location={location} key={location.pathname}>
           
           <Route path="/login" element={<PageTransition><Login /></PageTransition>} />
+          <Route path="/register" element={<PageTransition><Register /></PageTransition>} /> {/* YENİ EKLENDİ */}
 
           {/* PROTECTED */}
           <Route path="/" element={<ProtectedRoute><PageTransition><Home /></PageTransition></ProtectedRoute>} />
