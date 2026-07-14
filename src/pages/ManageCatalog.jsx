@@ -4,6 +4,12 @@ import { api } from '../api/axiosInstance';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ManageCatalog = () => {
+    const exerciseTypeOptions = [
+        { value: 0, label: 'Reps + Weight' },
+        { value: 1, label: 'Reps Only' },
+        { value: 2, label: 'Duration Only' },
+        { value: 3, label: 'Reps + Optional Weight' }
+    ];
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('muscleGroup');
     const [isLoading, setIsLoading] = useState(false);
@@ -17,6 +23,7 @@ const ManageCatalog = () => {
     const [iconKey, setIconKey] = useState('');
     const [selectedMuscleGroupId, setSelectedMuscleGroupId] = useState('');
     const [selectedTargetMuscleId, setSelectedTargetMuscleId] = useState('');
+    const [selectedExerciseType, setSelectedExerciseType] = useState('0');
 
     const fetchMuscleGroups = async () => {
         try {
@@ -37,6 +44,7 @@ const ManageCatalog = () => {
         setIconKey('');
         setSelectedMuscleGroupId('');
         setSelectedTargetMuscleId('');
+        setSelectedExerciseType('0');
         setMessage({ text: '', type: '' });
     }, [activeTab]);
 
@@ -53,22 +61,25 @@ const ManageCatalog = () => {
             if (activeTab === 'muscleGroup') {
                 await api.post('/catalog/muscle-groups', { name, iconKey });
                 showMessage('Muscle Group added successfully!');
-            } 
+            }
             else if (activeTab === 'targetMuscle') {
                 if (!selectedMuscleGroupId) throw new Error("Please select a Muscle Group");
-                await api.post('/catalog/target-muscles', { 
-                    muscleGroupId: parseInt(selectedMuscleGroupId), 
-                    name, 
-                    iconKey 
+                await api.post('/catalog/target-muscles', {
+                    muscleGroupId: parseInt(selectedMuscleGroupId),
+                    name,
+                    iconKey
                 });
                 showMessage('Target Muscle added successfully!');
-            } 
+            }
             else if (activeTab === 'exercise') {
-                if (!selectedTargetMuscleId) throw new Error("Please select a Target Muscle");
-                await api.post('/catalog/exercises', { 
-                    targetMuscleId: parseInt(selectedTargetMuscleId), 
-                    name, 
-                    iconKey 
+                if (!selectedTargetMuscleId) {
+                    throw new Error("Please select a Target Muscle");
+                }
+                await api.post('/catalog/exercises', {
+                    targetMuscleId: parseInt(selectedTargetMuscleId),
+                    name,
+                    iconKey,
+                    type: parseInt(selectedExerciseType)
                 });
                 showMessage('Exercise added successfully!');
             }
@@ -76,6 +87,7 @@ const ManageCatalog = () => {
             // Başarılı kayıttan sonra formları temizle ve güncel veriyi çek
             setName('');
             setIconKey('');
+            setSelectedExerciseType('0');
             fetchMuscleGroups();
 
         } catch (error) {
@@ -94,7 +106,7 @@ const ManageCatalog = () => {
         <div className="h-[100dvh] bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors overflow-hidden">
             <div className="flex-1 overflow-y-auto p-4">
                 <div className="max-w-md w-full mx-auto pt-4 flex flex-col">
-                    
+
                     {/* Header */}
                     <div className="flex items-center mb-6 gap-4">
                         <button
@@ -119,11 +131,10 @@ const ManageCatalog = () => {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all ${
-                                    activeTab === tab.id 
-                                        ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shadow-sm' 
-                                        : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                                }`}
+                                className={`flex-1 py-3 text-xs font-bold uppercase tracking-wider rounded-xl transition-all ${activeTab === tab.id
+                                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shadow-sm'
+                                    : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                                    }`}
                             >
                                 {tab.label}
                             </button>
@@ -137,11 +148,10 @@ const ManageCatalog = () => {
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
-                                className={`mb-6 p-4 rounded-xl text-sm font-bold text-center ${
-                                    message.type === 'error' 
-                                        ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30' 
-                                        : 'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-900/30'
-                                }`}
+                                className={`mb-6 p-4 rounded-xl text-sm font-bold text-center ${message.type === 'error'
+                                    ? 'bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/30'
+                                    : 'bg-green-50 dark:bg-green-950/30 text-green-600 dark:text-green-400 border border-green-100 dark:border-green-900/30'
+                                    }`}
                             >
                                 {message.text}
                             </motion.div>
@@ -151,12 +161,12 @@ const ManageCatalog = () => {
                     {/* Form */}
                     <div className="bg-blue-50/30 dark:bg-blue-950/20 p-6 rounded-3xl shadow-sm border-2 border-blue-100/50 dark:border-blue-900/30 mb-6 transition-colors">
                         <form onSubmit={handleSubmit} className="space-y-4">
-                            
+
                             {/* Target Muscle veya Exercise seçiliyse Muscle Group Dropdown'u göster */}
                             {(activeTab === 'targetMuscle' || activeTab === 'exercise') && (
                                 <div>
                                     <label className="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Select Muscle Group</label>
-                                    <select 
+                                    <select
                                         value={selectedMuscleGroupId}
                                         onChange={(e) => {
                                             setSelectedMuscleGroupId(e.target.value);
@@ -176,19 +186,26 @@ const ManageCatalog = () => {
                             {/* Sadece Exercise seçiliyse Target Muscle Dropdown'u göster */}
                             {activeTab === 'exercise' && (
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                                    <label className="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 mt-2">Select Target Muscle</label>
-                                    <select 
-                                        value={selectedTargetMuscleId}
-                                        onChange={(e) => setSelectedTargetMuscleId(e.target.value)}
+                                    <label className="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 mt-2">
+                                        Exercise Type
+                                    </label>
+
+                                    <select
+                                        value={selectedExerciseType}
+                                        onChange={(e) => setSelectedExerciseType(e.target.value)}
                                         required
-                                        disabled={!selectedMuscleGroupId}
-                                        className="w-full bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800/50 rounded-xl px-4 py-3 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none disabled:opacity-50"
+                                        className="w-full bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800/50 rounded-xl px-4 py-3 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none"
                                     >
-                                        <option value="" disabled>Choose a target...</option>
-                                        {currentTargetMuscles.map(tm => (
-                                            <option key={tm.id} value={tm.id}>{tm.name}</option>
+                                        {exerciseTypeOptions.map((type) => (
+                                            <option key={type.value} value={type.value}>
+                                                {type.label}
+                                            </option>
                                         ))}
                                     </select>
+
+                                    <p className="text-[10px] text-gray-400 mt-1 italic">
+                                        Optional Weight allows both bodyweight and weighted sets.
+                                    </p>
                                 </motion.div>
                             )}
 
