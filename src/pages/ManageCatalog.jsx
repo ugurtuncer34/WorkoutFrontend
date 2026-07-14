@@ -10,6 +10,12 @@ const ManageCatalog = () => {
         { value: 2, label: 'Duration Only' },
         { value: 3, label: 'Reps + Optional Weight' }
     ];
+    const exerciseTypeValueMap = {
+        RepsAndWeight: '0',
+        RepsOnly: '1',
+        DurationOnly: '2',
+        RepsWithOptionalWeight: '3'
+    };
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('muscleGroup');
     const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +30,8 @@ const ManageCatalog = () => {
     const [selectedMuscleGroupId, setSelectedMuscleGroupId] = useState('');
     const [selectedTargetMuscleId, setSelectedTargetMuscleId] = useState('');
     const [selectedExerciseType, setSelectedExerciseType] = useState('0');
+    const [exercises, setExercises] = useState([]);
+    const [editingExerciseId, setEditingExerciseId] = useState('');
 
     const fetchMuscleGroups = async () => {
         try {
@@ -34,9 +42,36 @@ const ManageCatalog = () => {
         }
     };
 
+    const fetchExercises = async (targetMuscleId) => {
+        if (!targetMuscleId) {
+            setExercises([]);
+            return;
+        }
+        try {
+            const response = await api.get(
+                `/catalog/target-muscles/${targetMuscleId}/exercises`
+            );
+            setExercises(response.data);
+        } catch (error) {
+            console.error('Failed to fetch exercises', error);
+            setExercises([]);
+        }
+    };
+
     useEffect(() => {
         fetchMuscleGroups();
     }, []);
+
+    useEffect(() => {
+        if (activeTab !== 'exercise') {
+            return;
+        }
+        fetchExercises(selectedTargetMuscleId);
+        setEditingExerciseId('');
+        setName('');
+        setIconKey('');
+        setSelectedExerciseType('0');
+    }, [selectedTargetMuscleId, activeTab]);
 
     // Tab değiştiğinde formu temizle
     useEffect(() => {
@@ -45,12 +80,35 @@ const ManageCatalog = () => {
         setSelectedMuscleGroupId('');
         setSelectedTargetMuscleId('');
         setSelectedExerciseType('0');
+        setExercises([]);
+        setEditingExerciseId('');
         setMessage({ text: '', type: '' });
     }, [activeTab]);
 
     const showMessage = (text, type = 'success') => {
         setMessage({ text, type });
         setTimeout(() => setMessage({ text: '', type: '' }), 3000);
+    };
+
+    const handleExerciseSelect = (exerciseId) => {
+        setEditingExerciseId(exerciseId);
+        if (!exerciseId) {
+            setName('');
+            setIconKey('');
+            setSelectedExerciseType('0');
+            return;
+        }
+        const selectedExercise = exercises.find(
+            (exercise) => exercise.id === parseInt(exerciseId)
+        );
+        if (!selectedExercise) {
+            return;
+        }
+        setName(selectedExercise.name);
+        setIconKey(selectedExercise.iconKey || '');
+        setSelectedExerciseType(
+            exerciseTypeValueMap[selectedExercise.type] ?? '0'
+        );
     };
 
     const handleSubmit = async (e) => {
@@ -73,22 +131,36 @@ const ManageCatalog = () => {
             }
             else if (activeTab === 'exercise') {
                 if (!selectedTargetMuscleId) {
-                    throw new Error("Please select a Target Muscle");
+                    throw new Error('Please select a Target Muscle');
                 }
-                await api.post('/catalog/exercises', {
+                const payload = {
                     targetMuscleId: parseInt(selectedTargetMuscleId),
                     name,
                     iconKey,
                     type: parseInt(selectedExerciseType)
-                });
-                showMessage('Exercise added successfully!');
+                };
+
+                if (editingExerciseId) {
+                    await api.put(
+                        `/catalog/exercises/${editingExerciseId}`,
+                        payload
+                    );
+                    showMessage('Exercise updated successfully!');
+                } else {
+                    await api.post('/catalog/exercises', payload);
+                    showMessage('Exercise added successfully!');
+                }
             }
 
             // Başarılı kayıttan sonra formları temizle ve güncel veriyi çek
             setName('');
             setIconKey('');
             setSelectedExerciseType('0');
+            setEditingExerciseId('');
             fetchMuscleGroups();
+            if (activeTab === 'exercise' && selectedTargetMuscleId) {
+                await fetchExercises(selectedTargetMuscleId);
+            }
 
         } catch (error) {
             console.error('Submit failed', error);
@@ -183,6 +255,36 @@ const ManageCatalog = () => {
                                 </div>
                             )}
 
+                            {activeTab === 'exercise' && selectedTargetMuscleId && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                >
+                                    <label className="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 mt-2">
+                                        Existing Exercise
+                                    </label>
+
+                                    <select
+                                        value={editingExerciseId}
+                                        onChange={(e) => handleExerciseSelect(e.target.value)}
+                                        className="w-full bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800/50 rounded-xl px-4 py-3 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none"
+                                    >
+                                        <option value="">
+                                            Create New Exercise
+                                        </option>
+
+                                        {exercises.map((exercise) => (
+                                            <option
+                                                key={exercise.id}
+                                                value={exercise.id}
+                                            >
+                                                {exercise.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </motion.div>
+                            )}
+
                             {/* Sadece Exercise seçiliyse Target Muscle Dropdown'u göster */}
                             {activeTab === 'exercise' && (
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -239,7 +341,11 @@ const ManageCatalog = () => {
                                 disabled={isLoading}
                                 className="w-full bg-blue-600 dark:bg-blue-600 text-white font-bold py-4 rounded-xl outline-none transition-all active:bg-blue-700 mt-6 shadow-lg shadow-blue-500/20 disabled:opacity-50"
                             >
-                                {isLoading ? 'Saving...' : 'Save to Catalog'}
+                                {isLoading
+                                    ? 'Saving...'
+                                    : editingExerciseId
+                                        ? 'Update Exercise'
+                                        : 'Save to Catalog'}
                             </button>
                         </form>
                     </div>
