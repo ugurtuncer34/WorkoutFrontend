@@ -97,8 +97,13 @@ const Logger = () => {
 
     const handleRepSelect = (reps) => {
         if (exercise.type === 'RepsOnly') {
-            handleSaveLog({ reps: reps });
-        } else {
+            handleSaveLog({ reps });
+            return;
+        }
+        if (
+            exercise.type === 'RepsAndWeight' ||
+            exercise.type === 'RepsWithOptionalWeight'
+        ) {
             setSelectedReps(reps);
             setStep('WEIGHT');
         }
@@ -106,6 +111,13 @@ const Logger = () => {
 
     const handleWeightSelect = (weight) => {
         handleSaveLog({ reps: selectedReps, weightKg: weight });
+    };
+
+    const handleBodyweightSelect = () => {
+        handleSaveLog({
+            reps: selectedReps,
+            weightKg: null
+        });
     };
 
     const handleDeleteSet = async (logId, setNumber) => {
@@ -176,15 +188,43 @@ const Logger = () => {
                             )}
 
                             {step === 'WEIGHT' && (
-                                <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}>
+                                <motion.div
+                                    initial={{ opacity: 0, x: 10 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                >
                                     <div className="flex items-center justify-between mb-4">
-                                        <button onClick={() => setStep('REPS')} className="text-blue-400/70 hover:text-blue-500 font-bold text-xl px-2 transition-colors">←</button>
-                                        <h3 className="text-sm font-black text-green-600/70 dark:text-green-400/70 uppercase tracking-[0.15em]">Weight (kg)</h3>
+                                        <button
+                                            onClick={() => setStep('REPS')}
+                                            className="text-blue-400/70 hover:text-blue-500 font-bold text-xl px-2 transition-colors"
+                                        >
+                                            ←
+                                        </button>
+
+                                        <h3 className="text-sm font-black text-green-600/70 dark:text-green-400/70 uppercase tracking-[0.15em]">
+                                            Weight (kg)
+                                        </h3>
+
                                         <div className="w-8"></div>
                                     </div>
+
+                                    {exercise.type === 'RepsWithOptionalWeight' && (
+                                        <button
+                                            disabled={isSubmitting}
+                                            onClick={handleBodyweightSelect}
+                                            className="w-full mb-3 bg-blue-100/50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-2 border-blue-400/50 dark:border-blue-500/50 font-bold text-lg py-4 rounded-xl active:bg-blue-200 dark:active:bg-blue-900/60 transition-all shadow-[0_0_15px_rgba(37,99,235,0.15)] disabled:opacity-50"
+                                        >
+                                            Bodyweight
+                                        </button>
+                                    )}
+
                                     <div className="grid grid-cols-3 gap-3">
                                         {weightOptions.map((weight) => (
-                                            <button key={`weight-${weight}`} disabled={isSubmitting} onClick={() => handleWeightSelect(weight)} className="bg-green-100/50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border-2 border-green-400/50 dark:border-green-500/50 font-bold text-xl py-4 rounded-xl active:bg-green-200 dark:active:bg-green-900/60 transition-all shadow-[0_0_15px_rgba(34,197,94,0.15)] disabled:opacity-50">
+                                            <button
+                                                key={`weight-${weight}`}
+                                                disabled={isSubmitting}
+                                                onClick={() => handleWeightSelect(weight)}
+                                                className="bg-green-100/50 dark:bg-green-950/40 text-green-700 dark:text-green-300 border-2 border-green-400/50 dark:border-green-500/50 font-bold text-xl py-4 rounded-xl active:bg-green-200 dark:active:bg-green-900/60 transition-all shadow-[0_0_15px_rgba(34,197,94,0.15)] disabled:opacity-50"
+                                            >
                                                 {weight}
                                             </button>
                                         ))}
@@ -210,8 +250,19 @@ const Logger = () => {
                                                 <span className="text-purple-600 dark:text-purple-400 font-bold">{set.durationSeconds}s</span>
                                             ) : (
                                                 <>
-                                                    <span className="text-gray-600 dark:text-gray-400 font-medium">{set.reps} reps</span>
-                                                    {set.weightKg != null && <span className="text-blue-600 dark:text-blue-400 font-black w-12 text-right">{set.weightKg}kg</span>}
+                                                    <span className="text-gray-600 dark:text-gray-400 font-medium">
+                                                        {set.reps} reps
+                                                    </span>
+
+                                                    {set.weightKg != null ? (
+                                                        <span className="text-blue-600 dark:text-blue-400 font-black w-12 text-right">
+                                                            {set.weightKg}kg
+                                                        </span>
+                                                    ) : (
+                                                        <span className="text-blue-500/70 dark:text-blue-400/70 font-black w-12 text-right text-xs">
+                                                            BW
+                                                        </span>
+                                                    )}
                                                 </>
                                             )}
                                             {set.status === 'saving' ? (

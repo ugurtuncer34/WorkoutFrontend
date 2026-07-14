@@ -157,11 +157,23 @@ const Summary = () => {
                                                                                             <span className="text-purple-500 dark:text-purple-400 font-bold">{set.durationSeconds}s</span>
                                                                                         ) : (
                                                                                             <>
-                                                                                                <span className="text-gray-600 dark:text-gray-300">{set.reps} reps</span>
-                                                                                                {set.weightKg != null && (
+                                                                                                <span className="text-gray-600 dark:text-gray-300">
+                                                                                                    {set.reps} reps
+                                                                                                </span>
+
+                                                                                                {set.weightKg != null ? (
                                                                                                     <>
                                                                                                         <span className="text-blue-300 mx-2">@</span>
-                                                                                                        <span className="text-gray-900 dark:text-white font-black">{set.weightKg} kg</span>
+                                                                                                        <span className="text-gray-900 dark:text-white font-black">
+                                                                                                            {set.weightKg} kg
+                                                                                                        </span>
+                                                                                                    </>
+                                                                                                ) : (
+                                                                                                    <>
+                                                                                                        <span className="text-blue-300 mx-2">@</span>
+                                                                                                        <span className="text-blue-500/70 dark:text-blue-400/70 font-black">
+                                                                                                            BW
+                                                                                                        </span>
                                                                                                     </>
                                                                                                 )}
                                                                                             </>
