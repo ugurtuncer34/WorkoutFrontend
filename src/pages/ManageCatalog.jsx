@@ -255,6 +255,40 @@ const ManageCatalog = () => {
                                 </div>
                             )}
 
+                            {/* Exercise seçiliyse Target Muscle Dropdown'u göster */}
+                            {activeTab === 'exercise' && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                >
+                                    <label className="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 mt-2">
+                                        Select Target Muscle
+                                    </label>
+
+                                    <select
+                                        value={selectedTargetMuscleId}
+                                        onChange={(e) => setSelectedTargetMuscleId(e.target.value)}
+                                        required
+                                        disabled={!selectedMuscleGroupId}
+                                        className="w-full bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800/50 rounded-xl px-4 py-3 text-sm text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium appearance-none disabled:opacity-50"
+                                    >
+                                        <option value="" disabled>
+                                            Choose a target...
+                                        </option>
+
+                                        {currentTargetMuscles.map((targetMuscle) => (
+                                            <option
+                                                key={targetMuscle.id}
+                                                value={targetMuscle.id}
+                                            >
+                                                {targetMuscle.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </motion.div>
+                            )}
+
+                            {/* Sadece Exercise seçiliyse Target Muscle Dropdown'u göster */}
                             {activeTab === 'exercise' && selectedTargetMuscleId && (
                                 <motion.div
                                     initial={{ opacity: 0 }}
@@ -285,7 +319,7 @@ const ManageCatalog = () => {
                                 </motion.div>
                             )}
 
-                            {/* Sadece Exercise seçiliyse Target Muscle Dropdown'u göster */}
+                            
                             {activeTab === 'exercise' && (
                                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                                     <label className="block text-xs font-black text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2 mt-2">
