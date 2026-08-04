@@ -10,6 +10,8 @@ import Summary from './pages/Summary';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ManageCatalog from './pages/ManageCatalog';
+import Templates from './pages/Templates';
+import TemplateEditor from './pages/TemplateEditor';
 import ThemeToggle from './components/ThemeToggle';
 
 const PageTransition = ({ children }) => {
@@ -53,6 +55,9 @@ const AnimatedRoutes = () => {
           <Route path="/logger/:exerciseId" element={<ProtectedRoute><PageTransition><Logger /></PageTransition></ProtectedRoute>} />
           <Route path="/summary/:sessionId" element={<ProtectedRoute><PageTransition><Summary /></PageTransition></ProtectedRoute>} />
           <Route path="/manage-catalog" element={<ProtectedRoute><PageTransition><ManageCatalog /></PageTransition></ProtectedRoute>} /> {/* YENİ EKLENDİ */}
+          <Route path="/templates" element={<ProtectedRoute><PageTransition><Templates /></PageTransition></ProtectedRoute>} />
+          <Route path="/templates/new" element={<ProtectedRoute><PageTransition><TemplateEditor /></PageTransition></ProtectedRoute>} />
+          <Route path="/templates/:id/edit" element={<ProtectedRoute><PageTransition><TemplateEditor /></PageTransition></ProtectedRoute>} />
           
         </Routes>
       </AnimatePresence>

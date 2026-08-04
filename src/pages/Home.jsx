@@ -110,6 +110,13 @@ const Home = () => {
                     >
                         {isStarting ? 'Starting...' : (activeSessionId ? 'Resume Active Session' : 'Start Session')}
                     </button>
+
+                    <button
+                        onClick={() => navigate('/templates')}
+                        className="mt-3 w-full rounded-xl border border-blue-200 bg-white/60 py-3 font-bold text-blue-700 transition-all hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-900/50 dark:bg-gray-900/30 dark:text-blue-300 dark:hover:bg-blue-950/30"
+                    >
+                        Templates
+                    </button>
                 </div>
 
                 {!isLoadingHistory && history.length > 0 && (
