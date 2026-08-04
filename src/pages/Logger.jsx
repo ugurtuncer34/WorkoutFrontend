@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../api/axiosInstance';
 import { motion } from 'framer-motion';
+import LastPerformanceCard from '../components/LastPerformanceCard';
 
 const Logger = () => {
     const { exerciseId } = useParams();
@@ -133,7 +134,7 @@ const Logger = () => {
     if (!exercise) return null;
 
     return (
-        <div className="h-[100dvh] bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors overflow-hidden">
+        <div className="h-[100dvh] bg-gray-50 dark:bg-gray-900 flex flex-col transition-colors overflow-x-hidden overflow-y-auto">
             <div className="flex-none px-4 pt-4">
                 <div className="max-w-md w-full mx-auto pt-2">
                     <div className="flex items-center mb-6 gap-4">
@@ -148,6 +149,8 @@ const Logger = () => {
                             <p className="text-xs font-black text-blue-600/70 dark:text-blue-400/70 uppercase tracking-[0.15em]">Set {loggedSets.length + 1}</p>
                         </div>
                     </div>
+
+                    <LastPerformanceCard exerciseId={exerciseId} sessionId={sessionId} />
 
                     <div className="bg-blue-50/30 dark:bg-blue-950/20 p-6 rounded-3xl shadow-sm border-2 border-blue-100/50 dark:border-blue-900/30 mb-6 flex flex-col transition-colors">
                         <div className="mb-6">
