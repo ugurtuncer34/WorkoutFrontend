@@ -324,7 +324,7 @@ const TemplateEditor = () => {
                     <p className="font-bold text-red-600 dark:text-red-400">{loadError}</p>
                     <div className="mt-5 grid grid-cols-2 gap-3">
                         <button type="button" onClick={handleBack} className="min-h-12 rounded-xl bg-gray-100 font-bold text-gray-600 dark:bg-gray-700 dark:text-gray-200">Back</button>
-                        <button type="button" onClick={fetchTemplate} className="min-h-12 rounded-xl bg-blue-600 font-bold text-white">Try Again</button>
+                        <button type="button" onClick={fetchTemplate} className="app-primary min-h-12 rounded-xl bg-blue-600 font-bold text-white">Try Again</button>
                     </div>
                 </div>
             </div>
@@ -406,7 +406,7 @@ const TemplateEditor = () => {
                         )}
 
                         <div ref={orderedListRef} className="relative space-y-4">
-                            <AnimatePresence initial={false} mode="popLayout" onExitComplete={handleRemovalExitComplete}>
+                            <AnimatePresence initial={false} onExitComplete={handleRemovalExitComplete}>
                                 {exercises.length === 0 ? (
                                     <motion.div
                                         key="empty-exercise-list"
@@ -425,15 +425,15 @@ const TemplateEditor = () => {
                                             key={exercise.exerciseId}
                                             layout={shouldReduceMotion ? false : 'position'}
                                             initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
-                                            animate={{ opacity: 1, y: 0 }}
-                                            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: -8 }}
+                                            animate={{ opacity: 1, y: 0, height: 'auto' }}
+                                            exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, height: 0 }}
                                             transition={shouldReduceMotion ? { duration: 0 } : {
-                                                    layout: { duration: 0.22, ease: 'easeInOut' },
-                                                    opacity: { duration: 0.18 },
-                                                    scale: { duration: 0.18 },
-                                                    y: { duration: 0.18 }
+                                                    layout: { duration: 0.2, ease: 'easeOut' },
+                                                    opacity: { duration: 0.14, ease: 'easeOut' },
+                                                    height: { duration: 0.18, ease: 'easeOut' },
+                                                    y: { duration: 0.18, ease: 'easeOut' }
                                                 }}
-                                            className="w-full"
+                                            className="w-full overflow-hidden"
                                         >
                                             <TemplateExerciseEditor
                                                 exercise={exercise}
@@ -451,7 +451,7 @@ const TemplateEditor = () => {
                         </div>
                     </section>
 
-                    <button type="submit" disabled={isSaving} className="mt-6 min-h-14 w-full rounded-2xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-50">
+                    <button type="submit" disabled={isSaving} className="app-primary mt-6 min-h-14 w-full rounded-2xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-50">
                         {isSaving ? 'Saving Template...' : (isEditMode ? 'Save Changes' : 'Create Template')}
                     </button>
                 </form>

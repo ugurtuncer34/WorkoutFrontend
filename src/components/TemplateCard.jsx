@@ -7,7 +7,7 @@ const formatUpdatedDate = (value) => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
-const TemplateCard = ({ template, pendingAction, onEdit, onClone, onArchiveToggle }) => {
+const TemplateCard = ({ template, pendingAction, onStart, onEdit, onClone, onArchiveToggle }) => {
     const exercises = [...(template.exercises || [])].sort((a, b) => a.position - b.position);
     const isPending = Boolean(pendingAction);
 
@@ -52,7 +52,18 @@ const TemplateCard = ({ template, pendingAction, onEdit, onClone, onArchiveToggl
                 </p>
             )}
 
-            <div className="mt-5 grid grid-cols-3 gap-2">
+            {!template.isArchived && (
+                <button
+                    type="button"
+                    onClick={onStart}
+                    disabled={isPending}
+                    className="app-primary mt-5 min-h-12 w-full rounded-xl bg-blue-600 text-sm font-black uppercase tracking-[0.14em] text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-50"
+                >
+                    {pendingAction === 'Starting...' ? pendingAction : 'Start Workout'}
+                </button>
+            )}
+
+            <div className={`${template.isArchived ? 'mt-5' : 'mt-2'} grid grid-cols-3 gap-2`}>
                 <button
                     type="button"
                     onClick={onEdit}

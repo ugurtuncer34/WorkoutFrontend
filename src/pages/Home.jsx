@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/axiosInstance';
 import WorkoutHeatmap from '../components/WorkoutHeatmap';
+import { clearActiveSession, getActiveSession, getActiveSessionDestination, setQuickSession } from '../utils/activeSession';
 
 const Home = () => {
     const [isStarting, setIsStarting] = useState(false);
@@ -9,7 +10,7 @@ const Home = () => {
     const [isLoadingHistory, setIsLoadingHistory] = useState(true);
     const navigate = useNavigate();
 
-    const activeSessionId = localStorage.getItem('activeSessionId');
+    const { sessionId: activeSessionId } = getActiveSession();
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -31,9 +32,10 @@ const Home = () => {
         setIsStarting(true);
         try {
             const response = await api.post('/workout/sessions', { notes: 'Session started from PWA' });
-            localStorage.setItem('activeSessionId', response.data.data.sessionId);
+            setQuickSession(response.data.data.sessionId);
             navigate('/catalog');
         } catch (error) {
+            console.error('Failed to start quick session', error);
             alert('Failed to start session.');
         } finally {
             setIsStarting(false);
@@ -55,7 +57,7 @@ const Home = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('token');
-        localStorage.removeItem('activeSessionId');
+        clearActiveSession();
         navigate('/login');
     };
 
@@ -102,7 +104,7 @@ const Home = () => {
                     </p>
 
                     <button
-                        onClick={activeSessionId ? () => navigate('/catalog') : handleStartSession}
+                        onClick={activeSessionId ? () => navigate(getActiveSessionDestination()) : handleStartSession}
                         disabled={isStarting}
                         className={`w-full font-bold py-4 rounded-xl transition-all ${activeSessionId
                             ? 'bg-orange-100/50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border-2 border-orange-400/50'

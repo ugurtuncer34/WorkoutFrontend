@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/axiosInstance';
 import IconCard from '../components/IconCard';
+import { clearActiveSession, getActiveSession } from '../utils/activeSession';
 
 const Catalog = () => {
     const [muscleGroups, setMuscleGroups] = useState([]);
@@ -10,11 +11,15 @@ const Catalog = () => {
     const [isCancelling, setIsCancelling] = useState(false);
     const navigate = useNavigate();
 
-    const sessionId = localStorage.getItem('activeSessionId');
+    const { sessionId, mode: sessionMode } = getActiveSession();
 
     useEffect(() => {
         if (!sessionId) {
             navigate('/');
+            return;
+        }
+        if (sessionMode === 'template') {
+            navigate(`/workout-plan/${sessionId}`, { replace: true });
             return;
         }
 
@@ -30,7 +35,7 @@ const Catalog = () => {
         };
 
         fetchCatalog();
-    }, [sessionId, navigate]);
+    }, [sessionId, sessionMode, navigate]);
 
     const handleGroupClick = (groupId) => navigate(`/exercises/${groupId}`);
 
@@ -39,9 +44,10 @@ const Catalog = () => {
         setIsCompleting(true);
         try {
             await api.put(`/workout/sessions/${sessionId}/complete`);
-            localStorage.removeItem('activeSessionId');
+            clearActiveSession();
             navigate(`/summary/${sessionId}`);
         } catch (error) {
+            console.error('Failed to complete session', error);
             alert('Failed to complete session. Please try again.');
             setIsCompleting(false);
         }
@@ -52,9 +58,10 @@ const Catalog = () => {
             setIsCancelling(true);
             try {
                 await api.delete(`/workout/sessions/${sessionId}/cancel`);
-                localStorage.removeItem('activeSessionId');
+                clearActiveSession();
                 navigate('/');
             } catch (error) {
+                console.error('Failed to cancel session', error);
                 alert('Failed to cancel session.');
                 setIsCancelling(false);
             }

@@ -90,7 +90,7 @@ const Login = () => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="w-full bg-blue-600 dark:bg-blue-600 text-white font-bold py-4 rounded-xl outline-none transition-all active:bg-blue-700 dark:active:bg-blue-700 mt-4 shadow-lg shadow-blue-500/20 disabled:opacity-50"
+                        className="app-primary w-full bg-blue-600 dark:bg-blue-600 text-white font-bold py-4 rounded-xl outline-none transition-all active:bg-blue-700 dark:active:bg-blue-700 mt-4 shadow-lg shadow-blue-500/20 disabled:opacity-50"
                     >
                         {isLoading ? 'Authenticating...' : 'Sign In'}
                     </button>

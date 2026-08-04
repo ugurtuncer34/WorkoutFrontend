@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { clearActiveSession } from '../utils/activeSession';
 
 // .NET backend (check Properties/launchSettings.json)
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5065/api'; 
@@ -25,7 +26,7 @@ api.interceptors.response.use((response) => {
 }, (error) => {
     if (error.response && error.response.status === 401) {
         localStorage.removeItem('token');
-        localStorage.removeItem('activeSessionId');
+        clearActiveSession();
         window.location.href = '/login';
     }
     return Promise.reject(error);

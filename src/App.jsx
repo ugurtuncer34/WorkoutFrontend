@@ -12,6 +12,7 @@ import Register from './pages/Register';
 import ManageCatalog from './pages/ManageCatalog';
 import Templates from './pages/Templates';
 import TemplateEditor from './pages/TemplateEditor';
+import WorkoutPlan from './pages/WorkoutPlan';
 import ThemeToggle from './components/ThemeToggle';
 
 const PageTransition = ({ children }) => {
@@ -53,6 +54,7 @@ const AnimatedRoutes = () => {
           <Route path="/catalog" element={<ProtectedRoute><PageTransition><Catalog /></PageTransition></ProtectedRoute>} />
           <Route path="/exercises/:muscleGroupId" element={<ProtectedRoute><PageTransition><ExerciseList /></PageTransition></ProtectedRoute>} />
           <Route path="/logger/:exerciseId" element={<ProtectedRoute><PageTransition><Logger /></PageTransition></ProtectedRoute>} />
+          <Route path="/workout-plan/:sessionId" element={<ProtectedRoute><PageTransition><WorkoutPlan /></PageTransition></ProtectedRoute>} />
           <Route path="/summary/:sessionId" element={<ProtectedRoute><PageTransition><Summary /></PageTransition></ProtectedRoute>} />
           <Route path="/manage-catalog" element={<ProtectedRoute><PageTransition><ManageCatalog /></PageTransition></ProtectedRoute>} /> {/* YENİ EKLENDİ */}
           <Route path="/templates" element={<ProtectedRoute><PageTransition><Templates /></PageTransition></ProtectedRoute>} />

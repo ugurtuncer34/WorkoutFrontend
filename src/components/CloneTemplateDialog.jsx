@@ -104,7 +104,7 @@ const CloneTemplateDialog = ({ template, isCloning, error, onClose, onClone }) =
                         <button
                             type="submit"
                             disabled={isCloning || !name.trim()}
-                            className="min-h-12 rounded-xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-50"
+                            className="app-primary min-h-12 rounded-xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-50"
                         >
                             {isCloning ? 'Cloning...' : 'Clone'}
                         </button>

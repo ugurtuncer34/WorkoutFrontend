@@ -4,6 +4,7 @@ import { api } from '../api/axiosInstance';
 import { getApiErrorMessage } from '../api/apiError';
 import CloneTemplateDialog from '../components/CloneTemplateDialog';
 import TemplateCard from '../components/TemplateCard';
+import { getActiveSession, getActiveSessionDestination, setTemplateSession } from '../utils/activeSession';
 
 const Templates = () => {
     const navigate = useNavigate();
@@ -88,6 +89,41 @@ const Templates = () => {
         }
     };
 
+    const handleStartWorkout = async (template) => {
+        if (template.isArchived || pendingActions[template.id]) return;
+
+        const activeSession = getActiveSession();
+        if (activeSession.sessionId) {
+            const shouldResume = window.confirm('A workout session is already active. Resume it now? Cancel keeps you on Templates.');
+            if (shouldResume) navigate(getActiveSessionDestination());
+            return;
+        }
+
+        setPendingActions((current) => ({ ...current, [template.id]: 'Starting...' }));
+        setError('');
+        try {
+            const response = await api.post('/workout/sessions/from-template', {
+                workoutTemplateId: template.id,
+                notes: `Started from ${template.name}`
+            });
+            const session = response.data.data;
+            setTemplateSession(session.workoutSessionId, {
+                templateName: session.templateNameSnapshot || template.name,
+                templateCategory: session.templateCategorySnapshot || template.category
+            });
+            navigate(`/workout-plan/${session.workoutSessionId}`);
+        } catch (requestError) {
+            console.error('Failed to start workout from template', requestError);
+            setError(getApiErrorMessage(requestError, 'Unable to start this template workout.'));
+        } finally {
+            setPendingActions((current) => {
+                const next = { ...current };
+                delete next[template.id];
+                return next;
+            });
+        }
+    };
+
     return (
         <div className="min-h-[100dvh] bg-gray-50 px-4 pb-[calc(env(safe-area-inset-bottom)+2rem)] pt-4 transition-colors dark:bg-gray-900">
             <main className="mx-auto w-full max-w-md pt-4">
@@ -113,7 +149,7 @@ const Templates = () => {
                 <button
                     type="button"
                     onClick={() => navigate('/templates/new')}
-                    className="mb-4 min-h-14 w-full rounded-2xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-400"
+                    className="app-primary mb-4 min-h-14 w-full rounded-2xl bg-blue-600 font-bold text-white shadow-lg shadow-blue-500/20 transition hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-400"
                 >
                     Create Template
                 </button>
@@ -155,6 +191,7 @@ const Templates = () => {
                                 key={template.id}
                                 template={template}
                                 pendingAction={pendingActions[template.id]}
+                                onStart={() => handleStartWorkout(template)}
                                 onEdit={() => navigate(`/templates/${template.id}/edit`)}
                                 onClone={() => {
                                     setCloneError('');

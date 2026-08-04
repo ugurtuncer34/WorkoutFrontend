@@ -2,7 +2,12 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { api } from '../api/axiosInstance';
 import { getApiErrorMessage } from '../api/apiError';
 
-const ExercisePicker = ({ existingExerciseIds, onAdd }) => {
+const ExercisePicker = ({
+    existingExerciseIds = [],
+    onAdd,
+    actionLabel = 'Add to Template',
+    duplicateLabel = 'this template'
+}) => {
     const [muscleGroups, setMuscleGroups] = useState([]);
     const [muscleGroupId, setMuscleGroupId] = useState('');
     const [targetMuscleId, setTargetMuscleId] = useState('');
@@ -71,7 +76,7 @@ const ExercisePicker = ({ existingExerciseIds, onAdd }) => {
             return;
         }
         if (existingExerciseIds.includes(selectedExercise.id)) {
-            setMessage(`${selectedExercise.name} is already in this template.`);
+            setMessage(`${selectedExercise.name} is already in ${duplicateLabel}.`);
             return;
         }
 
@@ -163,9 +168,9 @@ const ExercisePicker = ({ existingExerciseIds, onAdd }) => {
                     type="button"
                     onClick={handleAdd}
                     disabled={!exerciseId}
-                    className="min-h-12 w-full rounded-xl bg-blue-600 font-bold text-white transition hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-50"
+                    className="app-primary min-h-12 w-full rounded-xl bg-blue-600 font-bold text-white transition hover:bg-blue-700 focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-50"
                 >
-                    Add to Template
+                    {actionLabel}
                 </button>
             </div>
         </section>

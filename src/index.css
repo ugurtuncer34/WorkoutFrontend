@@ -9,6 +9,10 @@
 
 :root {
   --safe-area-inset-top: env(safe-area-inset-top);
+  --primary-button: #482fd3;
+  --primary-button-hover: #3f29bd;
+  --primary-button-active: #35229f;
+  --primary-button-shadow: rgba(72, 47, 211, 0.22);
 }
 
 body {
@@ -18,4 +22,58 @@ body {
 
 html.dark body {
   background-color: #111827;
+}
+
+html.dark {
+  --primary-button: #482fd3;
+  --primary-button-hover: #5742db;
+  --primary-button-active: #3d28b9;
+  --primary-button-shadow: rgba(20, 12, 66, 0.38);
+}
+
+button {
+  transition-property: color, background-color, border-color, box-shadow, opacity, filter;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+@media (hover: hover) {
+  button:not(:disabled):hover {
+    filter: brightness(0.97);
+  }
+}
+
+button:not(:disabled):active {
+  filter: brightness(0.91);
+}
+
+button:focus-visible {
+  outline: 2px solid #60a5fa;
+  outline-offset: 2px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.app-primary {
+  background-color: var(--primary-button);
+  color: #ffffff;
+  box-shadow: 0 8px 20px var(--primary-button-shadow);
+}
+
+@media (hover: hover) {
+  .app-primary:not(:disabled):hover {
+    background-color: var(--primary-button-hover);
+  }
+}
+
+.app-primary:not(:disabled):active {
+  background-color: var(--primary-button-active);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button {
+    transition-duration: 0.01ms;
+  }
 }
