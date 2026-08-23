@@ -13,6 +13,8 @@ import ManageCatalog from './pages/ManageCatalog';
 import Templates from './pages/Templates';
 import TemplateEditor from './pages/TemplateEditor';
 import WorkoutPlan from './pages/WorkoutPlan';
+import Programs from './pages/Programs';
+import ProgramEditor from './pages/ProgramEditor';
 import ThemeToggle from './components/ThemeToggle';
 
 const PageTransition = ({ children }) => {
@@ -60,6 +62,9 @@ const AnimatedRoutes = () => {
           <Route path="/templates" element={<ProtectedRoute><PageTransition><Templates /></PageTransition></ProtectedRoute>} />
           <Route path="/templates/new" element={<ProtectedRoute><PageTransition><TemplateEditor /></PageTransition></ProtectedRoute>} />
           <Route path="/templates/:id/edit" element={<ProtectedRoute><PageTransition><TemplateEditor /></PageTransition></ProtectedRoute>} />
+          <Route path="/programs" element={<ProtectedRoute><PageTransition><Programs /></PageTransition></ProtectedRoute>} />
+          <Route path="/programs/new" element={<ProtectedRoute><PageTransition><ProgramEditor /></PageTransition></ProtectedRoute>} />
+          <Route path="/programs/:id/edit" element={<ProtectedRoute><PageTransition><ProgramEditor /></PageTransition></ProtectedRoute>} />
           
         </Routes>
       </AnimatePresence>

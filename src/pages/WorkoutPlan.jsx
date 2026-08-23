@@ -2,10 +2,11 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api/axiosInstance';
+import { getActiveWorkoutProgram } from '../api/workoutPrograms';
 import { getApiErrorMessage } from '../api/apiError';
 import AdHocExerciseForm from '../components/AdHocExerciseForm';
 import useWorkoutPlan, { WORKOUT_EXERCISE_STATUS } from '../hooks/useWorkoutPlan';
-import { clearActiveSession, getActiveSession, getActiveSessionDestination, setTemplateSession } from '../utils/activeSession';
+import { clearActiveSession, getActiveSession, getActiveSessionDestination, setProgramSession, setTemplateSession } from '../utils/activeSession';
 
 const STATUS_STYLES = {
     Planned: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-200',
@@ -39,19 +40,30 @@ const WorkoutPlan = () => {
     const [showAddExercise, setShowAddExercise] = useState(false);
 
     const exercises = useMemo(() => plan?.exercises || [], [plan]);
-    const isActiveTemplatePlan = Boolean(plan?.isTemplateSession && !plan?.isCompleted);
+    const isProgramPlan = Boolean(plan?.isProgramSession || plan?.workoutProgramId || plan?.workoutProgramStepId);
+    const isActivePlannedSession = Boolean(plan?.isTemplateSession && !plan?.isCompleted);
     const activeSession = getActiveSession();
     const hasSessionConflict = Boolean(activeSession.sessionId && String(activeSession.sessionId) !== String(sessionId));
 
     useEffect(() => {
-        if (!isActiveTemplatePlan) return;
+        if (!isActivePlannedSession) return;
         const activeSession = getActiveSession();
         if (activeSession.sessionId && String(activeSession.sessionId) !== String(sessionId)) return;
-        setTemplateSession(sessionId, {
-            templateName: plan.templateNameSnapshot,
-            templateCategory: plan.templateCategorySnapshot
-        });
-    }, [isActiveTemplatePlan, plan, sessionId]);
+        if (isProgramPlan) {
+            setProgramSession(sessionId, {
+                templateName: plan.templateNameSnapshot,
+                templateCategory: plan.templateCategorySnapshot,
+                programName: plan.programNameSnapshot,
+                programStepLabel: plan.programStepLabelSnapshot,
+                programCycle: plan.programCycleNumberSnapshot
+            });
+        } else {
+            setTemplateSession(sessionId, {
+                templateName: plan.templateNameSnapshot,
+                templateCategory: plan.templateCategorySnapshot
+            });
+        }
+    }, [isActivePlannedSession, isProgramPlan, plan, sessionId]);
 
     const loggerPath = (exercise) => `/logger/${exercise.exerciseId}?sessionExerciseId=${exercise.sessionExerciseId}`;
 
@@ -94,6 +106,7 @@ const WorkoutPlan = () => {
         try {
             await api.put(`/workout/sessions/${sessionId}/complete`);
             clearActiveSession();
+            if (isProgramPlan) await getActiveWorkoutProgram().catch(() => null);
             navigate(`/summary/${sessionId}`);
         } catch (requestError) {
             console.error('Failed to finish template workout', requestError);
@@ -109,6 +122,7 @@ const WorkoutPlan = () => {
         try {
             await api.delete(`/workout/sessions/${sessionId}/cancel`);
             clearActiveSession();
+            if (isProgramPlan) await getActiveWorkoutProgram().catch(() => null);
             navigate('/');
         } catch (requestError) {
             console.error('Failed to cancel template workout', requestError);
@@ -136,12 +150,12 @@ const WorkoutPlan = () => {
         );
     }
 
-    if (!isActiveTemplatePlan) {
+    if (!isActivePlannedSession) {
         return (
             <div className="min-h-[100dvh] bg-gray-50 p-4 dark:bg-gray-900">
                 <div className="mx-auto mt-20 max-w-md rounded-3xl border border-amber-100 bg-white p-6 text-center dark:border-amber-900/30 dark:bg-gray-800">
                     <h1 className="text-xl font-black text-gray-900 dark:text-white">Workout is not active</h1>
-                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">This route only supports active template workouts.</p>
+                    <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">This route only supports active planned workouts.</p>
                     <button type="button" onClick={() => navigate('/')} className="app-primary mt-5 min-h-12 w-full rounded-xl bg-blue-600 font-bold text-white">Back to Home</button>
                 </div>
             </div>
@@ -171,8 +185,9 @@ const WorkoutPlan = () => {
                 <header className="mb-5 flex items-start gap-4 pr-12">
                     <button type="button" onClick={() => navigate('/')} aria-label="Back to home" className="flex h-12 w-12 flex-none items-center justify-center rounded-2xl border border-gray-100 bg-white text-xl font-bold text-gray-800 shadow-sm focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-gray-700 dark:bg-gray-800 dark:text-white">←</button>
                     <div className="min-w-0">
-                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-500">{plan.templateCategorySnapshot || 'Template Workout'}</p>
-                        <h1 className="break-words text-2xl font-black tracking-tight text-gray-900 dark:text-white">{plan.templateNameSnapshot || 'Planned Workout'}</h1>
+                        <p className="text-[10px] font-black uppercase tracking-[0.18em] text-blue-500">{isProgramPlan ? `Program · ${plan.programNameSnapshot || 'Rolling Program'} · Cycle ${plan.programCycleNumberSnapshot || 1}` : (plan.templateCategorySnapshot || 'Template Workout')}</p>
+                        <h1 className="break-words text-2xl font-black tracking-tight text-gray-900 dark:text-white">{isProgramPlan ? (plan.programStepLabelSnapshot || plan.templateNameSnapshot || 'Program Workout') : (plan.templateNameSnapshot || 'Planned Workout')}</h1>
+                        {isProgramPlan && plan.programStepLabelSnapshot && plan.templateNameSnapshot && plan.programStepLabelSnapshot !== plan.templateNameSnapshot && <p className="mt-1 break-words text-xs font-bold text-gray-400">{plan.templateNameSnapshot} · {plan.templateCategorySnapshot}</p>}
                     </div>
                 </header>
 

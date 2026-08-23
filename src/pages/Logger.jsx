@@ -16,7 +16,7 @@ const Logger = () => {
     const sessionExerciseParam = searchParams.get('sessionExerciseId');
     const parsedSessionExerciseId = Number(sessionExerciseParam);
     const hasValidSessionExerciseId = sessionExerciseParam != null && Number.isInteger(parsedSessionExerciseId) && parsedSessionExerciseId > 0;
-    const isTemplateSession = activeSessionMode === 'template' || sessionExerciseParam != null;
+    const isTemplateSession = ['template', 'program'].includes(activeSessionMode) || sessionExerciseParam != null;
     const sessionExerciseId = hasValidSessionExerciseId ? parsedSessionExerciseId : null;
 
     const [exercise, setExercise] = useState(null);

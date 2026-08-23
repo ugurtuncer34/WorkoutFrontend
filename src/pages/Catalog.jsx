@@ -18,7 +18,7 @@ const Catalog = () => {
             navigate('/');
             return;
         }
-        if (sessionMode === 'template') {
+        if (sessionMode === 'template' || sessionMode === 'program') {
             navigate(`/workout-plan/${sessionId}`, { replace: true });
             return;
         }

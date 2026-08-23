@@ -2,15 +2,44 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/axiosInstance';
 import WorkoutHeatmap from '../components/WorkoutHeatmap';
-import { clearActiveSession, getActiveSession, getActiveSessionDestination, setQuickSession } from '../utils/activeSession';
+import ActiveProgramCard from '../components/ActiveProgramCard';
+import useActiveWorkoutProgram from '../hooks/useActiveWorkoutProgram';
+import { clearActiveSession, getActiveSession, getActiveSessionDestination, setProgramSession, setQuickSession } from '../utils/activeSession';
 
 const Home = () => {
     const [isStarting, setIsStarting] = useState(false);
     const [history, setHistory] = useState([]);
     const [isLoadingHistory, setIsLoadingHistory] = useState(true);
     const navigate = useNavigate();
+    const activeProgramState = useActiveWorkoutProgram();
+    const { activeProgram, loading: isLoadingActiveProgram, error: activeProgramError } = activeProgramState;
+    const [activeSession, setActiveSessionState] = useState(() => getActiveSession());
 
-    const { sessionId: activeSessionId } = getActiveSession();
+    const { sessionId: activeSessionId } = activeSession;
+
+    useEffect(() => {
+        if (isLoadingActiveProgram || activeProgramError) return;
+
+        const incompleteSessionId = activeProgram?.incompleteWorkoutSessionId;
+        if (incompleteSessionId && (!activeSession.sessionId || activeSession.mode === 'program')) {
+            if (String(activeSession.sessionId) === String(incompleteSessionId) && activeSession.mode === 'program') return;
+            const step = activeProgram.currentStep;
+            setProgramSession(incompleteSessionId, {
+                templateName: step.workoutTemplateName,
+                templateCategory: step.workoutTemplateCategory,
+                programName: activeProgram.programName,
+                programStepLabel: step.label,
+                programCycle: activeProgram.cycleNumber
+            });
+            setActiveSessionState(getActiveSession());
+            return;
+        }
+
+        if (activeSession.sessionId && activeSession.mode === 'program' && !incompleteSessionId) {
+            clearActiveSession();
+            setActiveSessionState(getActiveSession());
+        }
+    }, [activeProgram, activeProgramError, activeSession, isLoadingActiveProgram]);
 
     useEffect(() => {
         const fetchHistory = async () => {
@@ -74,10 +103,10 @@ const Home = () => {
     };
 
     return (
-        <div className="h-screen bg-gray-50 dark:bg-gray-900 flex flex-col overflow-hidden transition-colors">
+        <div className="min-h-[100dvh] bg-gray-50 dark:bg-gray-900 transition-colors">
 
             {/* Fixed Top Section */}
-            <div className="flex-none p-4 pb-0 max-w-md w-full mx-auto">
+            <div className="p-4 pb-0 max-w-md w-full mx-auto">
                 <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm p-8 text-center mt-6 mb-4 relative">
                     
                     {/* Logout Butonu (Sol Üst) */}
@@ -110,16 +139,16 @@ const Home = () => {
                             ? 'bg-orange-100/50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border-2 border-orange-400/50'
                             : 'bg-blue-100/50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border-2 border-blue-400/50'}`}
                     >
-                        {isStarting ? 'Starting...' : (activeSessionId ? 'Resume Active Session' : 'Start Session')}
+                        {isStarting ? 'Starting...' : (activeSessionId ? 'Resume Active Session' : 'Start Quick Session')}
                     </button>
 
-                    <button
-                        onClick={() => navigate('/templates')}
-                        className="mt-3 w-full rounded-xl border border-blue-200 bg-white/60 py-3 font-bold text-blue-700 transition-all hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-900/50 dark:bg-gray-900/30 dark:text-blue-300 dark:hover:bg-blue-950/30"
-                    >
-                        Templates
-                    </button>
+                    <div className="mt-3 grid grid-cols-2 gap-3">
+                        <button onClick={() => navigate('/templates')} className="min-h-12 rounded-xl border border-blue-200 bg-white/60 px-2 font-bold text-blue-700 transition-all hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-900/50 dark:bg-gray-900/30 dark:text-blue-300 dark:hover:bg-blue-950/30">Templates</button>
+                        <button onClick={() => navigate('/programs')} className="min-h-12 rounded-xl border border-blue-200 bg-white/60 px-2 font-bold text-blue-700 transition-all hover:bg-blue-50 focus-visible:ring-2 focus-visible:ring-blue-500 dark:border-blue-900/50 dark:bg-gray-900/30 dark:text-blue-300 dark:hover:bg-blue-950/30">Programs</button>
+                    </div>
                 </div>
+
+                <ActiveProgramCard {...activeProgramState} />
 
                 {!isLoadingHistory && history.length > 0 && (
                     <div className="mb-4">
@@ -129,7 +158,7 @@ const Home = () => {
             </div>
 
             {/* Scrollable History Section */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-8 max-w-md w-full mx-auto">
+            <div className="px-4 pb-8 max-w-md w-full mx-auto">
                 <h3 className="text-sm font-black text-gray-600 dark:text-gray-200 mb-4 px-2 uppercase tracking-[0.15em]">
                     Recent Workouts
                 </h3>
