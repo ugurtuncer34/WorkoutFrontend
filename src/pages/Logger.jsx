@@ -51,7 +51,7 @@ const Logger = () => {
         : loggedSets.length + 1;
 
     const repOptions = [4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 20];
-    const weightOptions = [5, 8, 10, 12, 16, 20];
+    const weightOptions = [5, 8, 10, 12.5, 16, 20, 25];
     const durationOptions = [30, 35, 40, 45, 50, 55, 60, 90, 120];
 
     useEffect(() => {
